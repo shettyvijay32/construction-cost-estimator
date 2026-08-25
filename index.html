@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Construction Cost Estimator</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<header class="topbar">
+    <div>
+        <h1>🏗️ Construction Estimator</h1>
+        <p>High-Rise Building Cost Estimation</p>
+    </div>
+</header>
+
+<nav class="navigation">
+
+    <button onclick="showPage('dashboardPage')">
+        Dashboard
+    </button>
+
+    <button onclick="showPage('projectPage')">
+        Project
+    </button>
+
+    <button onclick="showPage('quantityPage')">
+        Quantity
+    </button>
+
+    <button onclick="showPage('ratesPage')">
+        Rates
+    </button>
+
+    <button onclick="showPage('boqPage')">
+        BOQ
+    </button>
+
+    <button onclick="showPage('summaryPage')">
+        Summary
+    </button>
+
+</nav>
+
+
+<main class="container">
+
+
+    <!-- ================= DASHBOARD ================= -->
+
+    <section id="dashboardPage" class="page">
+
+        <div class="page-title">
+            <h2>Dashboard</h2>
+
+            <button class="primary"
+                    onclick="showPage('projectPage')">
+                + New Project
+            </button>
+        </div>
+
+        <div class="dashboard-grid">
+
+            <div class="dashboard-card">
+                <span>Project</span>
+                <strong id="dashboardProject">
+                    No Project
+                </strong>
+            </div>
+
+            <div class="dashboard-card">
+                <span>Building</span>
+                <strong id="dashboardBuilding">
+                    -
+                </strong>
+            </div>
+
+            <div class="dashboard-card">
+                <span>Built-up Area</span>
+                <strong id="dashboardArea">
+                    0 sq.ft
+                </strong>
+            </div>
+
+            <div class="dashboard-card">
+                <span>Estimated Cost</span>
+                <strong id="dashboardCost">
+                    ₹0
+                </strong>
+            </div>
+
+        </div>
+
+
+        <div class="card">
+
+            <h3>Project Overview</h3>
+
+            <div id="dashboardDetails">
+                Create a project to begin.
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- ================= PROJECT ================= -->
+
+    <section id="projectPage" class="page hidden">
+
+        <div class="page-title">
+
+            <h2>Project Details</h2>
+
+        </div>
+
+
+        <div class="card">
+
+            <div class="form-grid">
+
+                <div class="form-group">
+
+                    <label>Project Name</label>
+
+                    <input
+                        id="projectName"
+                        type="text"
+                        placeholder="ABC Residential Tower">
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Location</label>
+
+                    <input
+                        id="projectLocation"
+                        type="text"
+                        placeholder="Hyderabad">
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Client Name</label>
+
+                    <input
+                        id="clientName"
+                        type="text"
+                        placeholder="Client name">
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Building Type</label>
+
+                    <select id="buildingType">
+
+                        <option value="Residential">
+                            Residential
+                        </option>
+
+                        <option value="Commercial">
+                            Commercial
+                        </option>
+
+                        <option value="Hospital">
+                            Hospital
+                        </option>
+
+                        <option value="Hotel">
+                            Hotel
+                        </option>
+
+                        <option value="Mixed Use">
+                            Mixed Use
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Number of Floors</label>
+
+                    <input
+                        id="numberOfFloors"
+                        type="number"
+                        value="20"
+                        min="0">
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Number of Basements</label>
+
+                    <input
+                        id="basements"
+                        type="number"
+                        value="2"
+                        min="0">
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Built-up Area (sq.ft)</label>
+
+                    <input
+                        id="builtUpArea"
+                        type="number"
+                        value="250000"
+                        min="0">
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Typical Floor Area (sq.ft)</label>
+
+                    <input
+                        id="floorArea"
+                        type="number"
+                        value="12500"
+                        min="0">
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Floor-to-Floor Height (m)</label>
+
+                    <input
+                        id="floorHeight"
+                        type="number"
+                        value="3.2"
+                        step="0.01"
+                        min="0">
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Building Length (m)</label>
+
+                    <input
+                        id="buildingLength"
+                        type="number"
+                        value="50"
+                        step="0.01"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Building Width (m)</label>
+
+                    <input
+                        id="buildingWidth"
+                        type="number"
+                        value="25"
+                        step="0.01"
+                    >
+
+                </div>
+
+            </div>
+
+
+            <button class="primary"
+                    onclick="saveProject()">
+
+                Save Project
+
+            </button>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- ================= QUANTITY ================= -->
+
+    <section id="quantityPage" class="page hidden">
+
+        <div class="page-title">
+
+            <h2>Quantity Estimation</h2>
+
+        </div>
+
+
+        <!-- RCC -->
+
+        <div class="card">
+
+            <h3>🧱 RCC Estimation</h3>
+
+            <div class="form-grid">
+
+                <div class="form-group">
+
+                    <label>Foundation RCC (m³)</label>
+
+                    <input
+                        id="foundationRcc"
+                        type="number"
+                        value="850"
+                        step="0.01">
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Column RCC (m³)</label>
+
+                    <input
+                        id="columnRcc"
+                        type="number"
+                        value="950"
+                        step="0.01">
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Beam RCC (m³)</label>
+
+                    <input
+                        id="beamRcc"
+                        type="number"
+                        value="720"
+                        step="0.01">
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Slab RCC (m³)</label>
+
+                    <input
+                        id="slabRcc"
+                        type="number"
+                        value="1800"
+                        step="0.01">
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Shear Wall RCC (m³)</label>
+
+                    <input
+                        id="shearWallRcc"
+                        type="number"
+                        value="600"
+                        step="0.01">
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Staircase RCC (m³)</label>
+
+                    <input
+                        id="staircaseRcc"
+                        type="number"
+                        value="120"
+                        step="0.01">
+
+                </div>
+
+            </div>
+
+
+            <div class="result-box">
+
+                Total RCC:
+
+                <strong id="totalRcc">
+                    0 m³
+                </strong>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- STEEL -->
+
+        <div class="card">
+
+            <h3>🔩 Reinforcement Steel</h3>
+
+            <div class="form-grid">
+
+                <div class="form-group">
+
+                    <label>Steel Quantity (MT)</label>
+
+                    <input
+                        id="steelQuantity"
+                        type="number"
+                        value="650"
+                        step="0.01">
+
+                </div>
+
+            </div>
+
+
+            <div class="result-box">
+
+                Steel:
+
+                <strong id="steelResult">
+                    0 MT
+                </strong>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- MASONRY -->
+
+        <div class="card">
+
+            <h3>🧱 Masonry</h3>
+
+            <div class="form-grid">
+
+                <div class="form-group">
+
+                    <label>Block / Brick Work (m²)</label>
+
+                    <input
+                        id="masonryQuantity"
+                        type="number"
+                        value="18000"
+                        step="0.01">
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- PLASTER -->
+
+        <div class="card">
+
+            <h3>🪣 Plaster</h3>
+
+            <div class="form-grid">
+
+                <div class="form-group">
+
+                    <label>Plaster Area (m²)</label>
+
+                    <input
+                        id="plasterQuantity"
+                        type="number"
+                        value="35000"
+                        step="0.01">
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- FLOORING -->
+
+        <div class="card">
+
+            <h3>⬜ Flooring</h3>
+
+            <div class="form-grid">
+
+                <div class="form-group">
+
+                    <label>Flooring Area (m²)</label>
+
+                    <input
+                        id="flooringQuantity"
+                        type="number"
+                        value="28000"
+                        step="0.01">
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- PAINTING -->
+
+        <div class="card">
+
+            <h3>🎨 Painting</h3>
+
+            <div class="form-grid">
+
+                <div class="form-group">
+
+                    <label>Painting Area (m²)</label>
+
+                    <input
+                        id="paintingQuantity"
+                        type="number"
+                        value="60000"
+                        step="0.01">
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <button class="primary"
+                onclick="calculateQuantities()">
+
+            Calculate Quantities
+
+        </button>
+
+    </section>
+
+
+
+    <!-- ================= RATES ================= -->
+
+    <section id="ratesPage" class="page hidden">
+
+        <div class="page-title">
+
+            <h2>Material & Labour Rates</h2>
+
+        </div>
+
+
+        <!-- MATERIAL RATES -->
+
+        <div class="card">
+
+            <h3>Material Rates</h3>
+
+            <div class="form-grid">
+
+
+                <div class="form-group">
+
+                    <label>RCC Rate (₹ / m³)</label>
+
+                    <input
+                        id="rccRate"
+                        type="number"
+                        value="8500">
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Steel Rate (₹ / MT)</label>
+
+                    <input
+                        id="steelRate"
+                        type="number"
+                        value="62000">
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Masonry Rate (₹ / m²)</label>
+
+                    <input
+                        id="masonryRate"
+                        type="number"
+                        value="1200">
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Plaster Rate (₹ / m²)</label>
+
+                    <input
+                        id="plasterRate"
+                        type="number"
+                        value="280">
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Flooring Rate (₹ / m²)</label>
+
+                    <input
+                        id="flooringRate"
+                        type="number"
+                        value="1500">
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Painting Rate (₹ / m²)</label>
+
+                    <input
+                        id="paintingRate"
+                        type="number"
+                        value="180">
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- LABOUR -->
+
+        <div class="card">
+
+            <h3>Labour</h3>
+
+            <div class="form-grid">
+
+                <div class="form-group">
+
+                    <label>Labour Cost (₹)</label>
+
+                    <input
+                        id="labourCost"
+                        type="number"
+                        value="50000000">
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- OTHER COSTS -->
+
+        <div class="card">
+
+            <h3>Other Costs</h3>
+
+            <div class="form-grid">
+
+                <div class="form-group">
+
+                    <label>MEP Cost (₹)</label>
+
+                    <input
+                        id="mepCost"
+                        type="number"
+                        value="120000000">
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Equipment Cost (₹)</label>
+
+                    <input
+                        id="equipmentCost"
+                        type="number"
+                        value="20000000">
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Overheads (₹)</label>
+
+                    <input
+                        id="overheadCost"
+                        type="number"
+                        value="30000000">
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Contingency (₹)</label>
+
+                    <input
+                        id="contingencyCost"
+                        type="number"
+                        value="35000000">
+
+                </div>
+
+            </div>
+
+
+            <button class="primary"
+                    onclick="calculateCost()">
+
+                Calculate Cost
+
+            </button>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- ================= BOQ ================= -->
+
+    <section id="boqPage" class="page hidden">
+
+        <div class="page-title">
+
+            <h2>Bill of Quantities</h2>
+
+        </div>
+
+
+        <div class="card table-container">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>Item</th>
+
+                        <th>Quantity</th>
+
+                        <th>Unit</th>
+
+                        <th>Rate</th>
+
+                        <th>Amount</th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody id="boqTable">
+
+                </tbody>
+
+
+                <tfoot>
+
+                    <tr>
+
+                        <th colspan="4">
+                            Total
+                        </th>
+
+                        <th id="boqTotal">
+                            ₹0
+                        </th>
+
+                    </tr>
+
+                </tfoot>
+
+            </table>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- ================= SUMMARY ================= -->
+
+    <section id="summaryPage" class="page hidden">
+
+        <div class="page-title">
+
+            <h2>Cost Summary</h2>
+
+        </div>
+
+
+        <div class="summary-card">
+
+            <h3>Total Project Cost</h3>
+
+            <div id="totalProjectCost"
+                 class="big-number">
+
+                ₹0
+
+            </div>
+
+            <p>
+                Cost / sq.ft:
+                <strong id="costPerSqft">
+                    ₹0
+                </strong>
+            </p>
+
+        </div>
+
+
+        <div class="card">
+
+            <h3>Cost Breakdown</h3>
+
+            <div id="summaryBreakdown">
+
+            </div>
+
+        </div>
+
+
+        <button class="primary"
+                onclick="exportCSV()">
+
+            Export BOQ CSV
+
+        </button>
+
+    </section>
+
+</main>
+
+
+<footer>
+
+    Construction Cost Estimator
+    <br>
+
+    Version 1.0
+
+</footer>
+
+
+<script src="app.js"></script>
+
+</body>
+
+</html>
