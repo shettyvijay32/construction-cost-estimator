@@ -4,6 +4,7 @@
     padding: 0;
 }
 
+
 body {
     font-family: Arial, Helvetica, sans-serif;
     background: #f4f6f8;
@@ -11,7 +12,9 @@ body {
 }
 
 
-/* HEADER */
+/* =====================================================
+   HEADER
+===================================================== */
 
 .topbar {
     background: #172554;
@@ -19,9 +22,11 @@ body {
     padding: 18px 25px;
 }
 
+
 .topbar h1 {
     font-size: 24px;
 }
+
 
 .topbar p {
     margin-top: 5px;
@@ -29,7 +34,10 @@ body {
 }
 
 
-/* NAVIGATION */
+
+/* =====================================================
+   NAVIGATION
+===================================================== */
 
 .navigation {
     display: flex;
@@ -40,6 +48,7 @@ body {
     border-bottom: 1px solid #ddd;
 }
 
+
 .navigation button {
     border: none;
     background: #eef2ff;
@@ -47,63 +56,79 @@ body {
     border-radius: 8px;
     cursor: pointer;
     white-space: nowrap;
+    font-size: 14px;
 }
+
 
 .navigation button:hover {
     background: #dbeafe;
 }
 
 
-/* MAIN */
+
+/* =====================================================
+   MAIN
+===================================================== */
 
 .container {
-    max-width: 1200px;
+    max-width: 1400px;
     margin: auto;
     padding: 20px;
 }
 
 
-/* PAGE */
-
 .page {
     display: block;
 }
 
+
 .hidden {
-    display: none;
+    display: none !important;
 }
 
 
-/* PAGE TITLE */
+
+/* =====================================================
+   PAGE TITLE
+===================================================== */
 
 .page-title {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 20px;
+    gap: 15px;
 }
+
 
 .page-title h2 {
     font-size: 26px;
 }
 
 
-/* CARDS */
+
+/* =====================================================
+   CARDS
+===================================================== */
 
 .card {
     background: white;
     padding: 22px;
     margin-bottom: 20px;
     border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
+
 
 .card h3 {
     margin-bottom: 18px;
 }
 
 
-/* DASHBOARD */
+
+/* =====================================================
+   DASHBOARD
+===================================================== */
 
 .dashboard-grid {
     display: grid;
@@ -112,12 +137,14 @@ body {
     margin-bottom: 20px;
 }
 
+
 .dashboard-card {
     background: white;
     padding: 20px;
     border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
+
 
 .dashboard-card span {
     display: block;
@@ -125,12 +152,17 @@ body {
     margin-bottom: 10px;
 }
 
+
 .dashboard-card strong {
     font-size: 20px;
+    word-break: break-word;
 }
 
 
-/* FORM */
+
+/* =====================================================
+   FORM
+===================================================== */
 
 .form-grid {
     display: grid;
@@ -139,15 +171,18 @@ body {
     margin-bottom: 20px;
 }
 
+
 .form-group {
     display: flex;
     flex-direction: column;
 }
 
+
 .form-group label {
     margin-bottom: 7px;
     font-weight: bold;
 }
+
 
 .form-group input,
 .form-group select {
@@ -155,7 +190,9 @@ body {
     border: 1px solid #d1d5db;
     border-radius: 7px;
     font-size: 15px;
+    width: 100%;
 }
+
 
 .form-group input:focus,
 .form-group select:focus {
@@ -164,7 +201,10 @@ body {
 }
 
 
-/* BUTTONS */
+
+/* =====================================================
+   BUTTONS
+===================================================== */
 
 .primary {
     background: #2563eb;
@@ -177,12 +217,50 @@ body {
     font-weight: bold;
 }
 
+
 .primary:hover {
     background: #1d4ed8;
 }
 
 
-/* RESULT */
+.add-row-btn {
+    background: #16a34a;
+    color: white;
+    border: none;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    font-size: 20px;
+    line-height: 30px;
+    cursor: pointer;
+}
+
+
+.add-row-btn:hover {
+    background: #15803d;
+}
+
+
+.remove-row-btn {
+    background: #dc2626;
+    color: white;
+    border: none;
+    width: 30px;
+    height: 30px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+
+.remove-row-btn:hover {
+    background: #b91c1c;
+}
+
+
+
+/* =====================================================
+   RESULT
+===================================================== */
 
 .result-box {
     background: #eff6ff;
@@ -192,12 +270,16 @@ body {
     font-size: 17px;
 }
 
+
 .result-box strong {
     float: right;
 }
 
 
-/* SUMMARY */
+
+/* =====================================================
+   SUMMARY
+===================================================== */
 
 .summary-card {
     background: #172554;
@@ -207,9 +289,11 @@ body {
     margin-bottom: 20px;
 }
 
+
 .summary-card h3 {
     opacity: 0.8;
 }
+
 
 .big-number {
     font-size: 40px;
@@ -218,34 +302,120 @@ body {
 }
 
 
-/* TABLE */
+
+/* =====================================================
+   TABLE
+===================================================== */
 
 .table-container {
     overflow-x: auto;
 }
 
+
 table {
     width: 100%;
     border-collapse: collapse;
+    background: white;
+    min-width: 1050px;
 }
+
 
 th,
 td {
-    padding: 12px;
-    border-bottom: 1px solid #e5e7eb;
-    text-align: left;
+    padding: 10px 9px;
+    border: 1px solid #d1d5db;
+    text-align: center;
+    vertical-align: middle;
+    white-space: nowrap;
 }
+
 
 thead {
-    background: #f3f4f6;
+    background: #e5e7eb;
 }
 
-tfoot {
+
+thead th {
+    font-weight: bold;
+    color: #111827;
+}
+
+
+tbody tr:hover {
     background: #f9fafb;
 }
 
 
-/* FOOTER */
+tfoot {
+    background: #f3f4f6;
+}
+
+
+tfoot th {
+    font-weight: bold;
+    font-size: 16px;
+}
+
+
+.total-label {
+    text-align: right;
+}
+
+
+.boq-input {
+    width: 80px;
+    padding: 7px;
+    border: 1px solid #cbd5e1;
+    border-radius: 5px;
+    text-align: center;
+}
+
+
+.description-input {
+    width: 220px;
+    text-align: left;
+}
+
+
+.unit-select {
+    width: 75px;
+    padding: 7px;
+    border: 1px solid #cbd5e1;
+    border-radius: 5px;
+}
+
+
+.amount-cell {
+    font-weight: bold;
+    text-align: right;
+}
+
+
+.rate-cell {
+    text-align: right;
+}
+
+
+
+/* =====================================================
+   SUMMARY BREAKDOWN
+===================================================== */
+
+#summaryBreakdown p {
+    padding: 10px 0;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+
+#summaryBreakdown p:last-child {
+    border-bottom: none;
+}
+
+
+
+/* =====================================================
+   FOOTER
+===================================================== */
 
 footer {
     text-align: center;
@@ -254,7 +424,10 @@ footer {
 }
 
 
-/* MOBILE */
+
+/* =====================================================
+   MOBILE
+===================================================== */
 
 @media (max-width: 768px) {
 
@@ -262,26 +435,33 @@ footer {
         font-size: 19px;
     }
 
+
     .container {
         padding: 12px;
     }
+
 
     .dashboard-grid {
         grid-template-columns: repeat(2, 1fr);
     }
 
+
     .form-grid {
         grid-template-columns: 1fr;
     }
 
+
     .page-title {
         align-items: flex-start;
         gap: 10px;
+        flex-direction: column;
     }
+
 
     .big-number {
         font-size: 30px;
     }
+
 
     .card {
         padding: 16px;
@@ -289,11 +469,13 @@ footer {
 
 }
 
+
 @media (max-width: 480px) {
 
     .dashboard-grid {
         grid-template-columns: 1fr;
     }
+
 
     .navigation button {
         padding: 9px 12px;
