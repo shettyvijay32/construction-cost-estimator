@@ -1,18 +1,27 @@
 /* =========================================================
    CONSTRUCTION COST ESTIMATOR
-   VERSION 1.0
-   ========================================================= */
+   VERSION 2.0
+
+   Changes:
+   - Proper Unicode support
+   - Real XLSX Excel export
+   - m³ and m² correctly preserved
+   - Total Amount exported
+   - Excel formatting
+   - Proper column alignment
+   - BOQ rows
+========================================================= */
 
 
-/* ---------------------------------------------------------
-   GLOBAL PROJECT DATA
-   --------------------------------------------------------- */
+/* =========================================================
+   PROJECT DATA
+========================================================= */
 
 let project = {
     name: "",
     location: "",
     client: "",
-    buildingType: "",
+    buildingType: "Residential",
     floors: 0,
     basements: 0,
     builtUpArea: 0,
@@ -23,11 +32,13 @@ let project = {
 };
 
 
-/* ---------------------------------------------------------
+
+/* =========================================================
    QUANTITY DATA
-   --------------------------------------------------------- */
+========================================================= */
 
 let quantities = {
+
     foundationRcc: 0,
     columnRcc: 0,
     beamRcc: 0,
@@ -44,11 +55,13 @@ let quantities = {
 };
 
 
-/* ---------------------------------------------------------
+
+/* =========================================================
    RATE DATA
-   --------------------------------------------------------- */
+========================================================= */
 
 let rates = {
+
     rcc: 8500,
     steel: 62000,
     masonry: 1200,
@@ -64,59 +77,200 @@ let rates = {
 };
 
 
-/* ---------------------------------------------------------
+
+/* =========================================================
+   BOQ DATA
+========================================================= */
+
+let boqRows = [
+
+    {
+        id: 1,
+        sno: "1",
+        description: "Earth Work",
+        l: 0,
+        b: 0,
+        dt: 0,
+        quantity: 0,
+        unit: "m³",
+        rate: 0
+    },
+
+    {
+        id: 2,
+        sno: "2",
+        description: "Footing Concrete",
+        l: 0,
+        b: 0,
+        dt: 0,
+        quantity: 0,
+        unit: "m³",
+        rate: 0
+    },
+
+    {
+        id: 3,
+        sno: "3",
+        description: "Columns",
+        l: 0,
+        b: 0,
+        dt: 0,
+        quantity: 0,
+        unit: "m³",
+        rate: 0
+    },
+
+    {
+        id: 4,
+        sno: "4",
+        description: "Slab",
+        l: 0,
+        b: 0,
+        dt: 0,
+        quantity: 0,
+        unit: "m³",
+        rate: 0
+    },
+
+    {
+        id: 5,
+        sno: "5",
+        description: "Brick Work",
+        l: 0,
+        b: 0,
+        dt: 0,
+        quantity: 0,
+        unit: "m²",
+        rate: 0
+    },
+
+    {
+        id: 6,
+        sno: "6",
+        description: "Plastering",
+        l: 0,
+        b: 0,
+        dt: 0,
+        quantity: 0,
+        unit: "m²",
+        rate: 0
+    },
+
+    {
+        id: 7,
+        sno: "7",
+        description: "Putty",
+        l: 0,
+        b: 0,
+        dt: 0,
+        quantity: 0,
+        unit: "m²",
+        rate: 0
+    },
+
+    {
+        id: 8,
+        sno: "8",
+        description: "Painting 1st Coat",
+        l: 0,
+        b: 0,
+        dt: 0,
+        quantity: 0,
+        unit: "m²",
+        rate: 0
+    },
+
+    {
+        id: 9,
+        sno: "9",
+        description: "Dado",
+        l: 0,
+        b: 0,
+        dt: 0,
+        quantity: 0,
+        unit: "m²",
+        rate: 0
+    }
+];
+
+
+
+let nextBoqId = 10;
+
+
+
+/* =========================================================
    PAGE NAVIGATION
-   --------------------------------------------------------- */
+========================================================= */
 
 function showPage(pageId) {
 
-    const pages = document.querySelectorAll(".page");
+    const pages =
+        document.querySelectorAll(".page");
+
 
     pages.forEach(page => {
+
         page.classList.add("hidden");
+
     });
+
 
     const selectedPage =
         document.getElementById(pageId);
 
+
     if (selectedPage) {
+
         selectedPage.classList.remove("hidden");
+
     }
 
-    if (pageId === "boqPage") {
-        calculateCost();
-    }
 
-    if (pageId === "summaryPage") {
+    if (
+        pageId === "boqPage" ||
+        pageId === "summaryPage"
+    ) {
+
         calculateCost();
+
     }
 
 }
 
 
-/* ---------------------------------------------------------
-   HELPER
-   --------------------------------------------------------- */
+
+/* =========================================================
+   NUMBER HELPER
+========================================================= */
 
 function getNumber(id) {
 
     const element =
         document.getElementById(id);
 
+
     if (!element) {
+
         return 0;
+
     }
+
 
     const value =
         parseFloat(element.value);
 
-    return isNaN(value) ? 0 : value;
+
+    return Number.isFinite(value)
+        ? value
+        : 0;
 }
 
 
-/* ---------------------------------------------------------
+
+/* =========================================================
    CURRENCY
-   --------------------------------------------------------- */
+========================================================= */
 
 function formatCurrency(value) {
 
@@ -127,46 +281,65 @@ function formatCurrency(value) {
             currency: "INR",
             maximumFractionDigits: 0
         }
-    ).format(value);
+    ).format(Number(value) || 0);
 
 }
 
 
-/* ---------------------------------------------------------
+
+/* =========================================================
    SAVE PROJECT
-   --------------------------------------------------------- */
+========================================================= */
 
 function saveProject() {
 
     project.name =
-        document.getElementById("projectName").value;
+        document.getElementById(
+            "projectName"
+        ).value;
+
 
     project.location =
-        document.getElementById("projectLocation").value;
+        document.getElementById(
+            "projectLocation"
+        ).value;
+
 
     project.client =
-        document.getElementById("clientName").value;
+        document.getElementById(
+            "clientName"
+        ).value;
+
 
     project.buildingType =
-        document.getElementById("buildingType").value;
+        document.getElementById(
+            "buildingType"
+        ).value;
+
 
     project.floors =
         getNumber("numberOfFloors");
 
+
     project.basements =
         getNumber("basements");
+
 
     project.builtUpArea =
         getNumber("builtUpArea");
 
+
     project.floorArea =
         getNumber("floorArea");
+
 
     project.floorHeight =
         getNumber("floorHeight");
 
+
     project.buildingLength =
         getNumber("buildingLength");
+
 
     project.buildingWidth =
         getNumber("buildingWidth");
@@ -188,9 +361,10 @@ function saveProject() {
 }
 
 
-/* ---------------------------------------------------------
+
+/* =========================================================
    LOAD PROJECT
-   --------------------------------------------------------- */
+========================================================= */
 
 function loadProject() {
 
@@ -199,45 +373,82 @@ function loadProject() {
             "constructionProject"
         );
 
+
     if (!saved) {
+
         return;
+
     }
 
-    project = JSON.parse(saved);
+
+    try {
+
+        project =
+            JSON.parse(saved);
+
+    } catch (error) {
+
+        console.error(
+            "Unable to load project:",
+            error
+        );
+
+        return;
+
+    }
 
 
-    document.getElementById("projectName").value =
-        project.name || "";
+    const fields = {
 
-    document.getElementById("projectLocation").value =
-        project.location || "";
+        projectName: project.name || "",
 
-    document.getElementById("clientName").value =
-        project.client || "";
+        projectLocation:
+            project.location || "",
 
-    document.getElementById("buildingType").value =
-        project.buildingType || "Residential";
+        clientName:
+            project.client || "",
 
-    document.getElementById("numberOfFloors").value =
-        project.floors || 0;
+        buildingType:
+            project.buildingType ||
+            "Residential",
 
-    document.getElementById("basements").value =
-        project.basements || 0;
+        numberOfFloors:
+            project.floors || 0,
 
-    document.getElementById("builtUpArea").value =
-        project.builtUpArea || 0;
+        basements:
+            project.basements || 0,
 
-    document.getElementById("floorArea").value =
-        project.floorArea || 0;
+        builtUpArea:
+            project.builtUpArea || 0,
 
-    document.getElementById("floorHeight").value =
-        project.floorHeight || 0;
+        floorArea:
+            project.floorArea || 0,
 
-    document.getElementById("buildingLength").value =
-        project.buildingLength || 0;
+        floorHeight:
+            project.floorHeight || 0,
 
-    document.getElementById("buildingWidth").value =
-        project.buildingWidth || 0;
+        buildingLength:
+            project.buildingLength || 0,
+
+        buildingWidth:
+            project.buildingWidth || 0
+    };
+
+
+    Object.keys(fields).forEach(id => {
+
+        const element =
+            document.getElementById(id);
+
+
+        if (element) {
+
+            element.value =
+                fields[id];
+
+        }
+
+    });
 
 
     updateDashboard();
@@ -245,16 +456,18 @@ function loadProject() {
 }
 
 
-/* ---------------------------------------------------------
-   UPDATE DASHBOARD
-   --------------------------------------------------------- */
+
+/* =========================================================
+   DASHBOARD
+========================================================= */
 
 function updateDashboard() {
 
     document.getElementById(
         "dashboardProject"
     ).textContent =
-        project.name || "No Project";
+        project.name ||
+        "No Project";
 
 
     document.getElementById(
@@ -268,8 +481,9 @@ function updateDashboard() {
     document.getElementById(
         "dashboardArea"
     ).textContent =
-        Number(project.builtUpArea || 0)
-            .toLocaleString("en-IN")
+        Number(
+            project.builtUpArea || 0
+        ).toLocaleString("en-IN")
         + " sq.ft";
 
 
@@ -287,49 +501,84 @@ function updateDashboard() {
         "dashboardDetails"
     ).innerHTML = `
 
-        <p><strong>Project:</strong>
-        ${project.name || "-"}</p>
+        <p>
+            <strong>Project:</strong>
+            ${escapeHtml(project.name || "-")}
+        </p>
 
-        <p><strong>Location:</strong>
-        ${project.location || "-"}</p>
+        <p>
+            <strong>Location:</strong>
+            ${escapeHtml(project.location || "-")}
+        </p>
 
-        <p><strong>Client:</strong>
-        ${project.client || "-"}</p>
+        <p>
+            <strong>Client:</strong>
+            ${escapeHtml(project.client || "-")}
+        </p>
 
-        <p><strong>Building Type:</strong>
-        ${project.buildingType || "-"}</p>
+        <p>
+            <strong>Building Type:</strong>
+            ${escapeHtml(project.buildingType || "-")}
+        </p>
 
-        <p><strong>Floors:</strong>
-        G + ${project.floors || 0}</p>
+        <p>
+            <strong>Floors:</strong>
+            G + ${project.floors || 0}
+        </p>
 
-        <p><strong>Basements:</strong>
-        ${project.basements || 0}</p>
+        <p>
+            <strong>Basements:</strong>
+            ${project.basements || 0}
+        </p>
 
     `;
 
 }
 
 
-/* ---------------------------------------------------------
-   CALCULATE QUANTITIES
-   --------------------------------------------------------- */
+
+/* =========================================================
+   ESCAPE HTML
+========================================================= */
+
+function escapeHtml(value) {
+
+    return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+
+}
+
+
+
+/* =========================================================
+   QUANTITY CALCULATION
+========================================================= */
 
 function calculateQuantities() {
 
     quantities.foundationRcc =
         getNumber("foundationRcc");
 
+
     quantities.columnRcc =
         getNumber("columnRcc");
+
 
     quantities.beamRcc =
         getNumber("beamRcc");
 
+
     quantities.slabRcc =
         getNumber("slabRcc");
 
+
     quantities.shearWallRcc =
         getNumber("shearWallRcc");
+
 
     quantities.staircaseRcc =
         getNumber("staircaseRcc");
@@ -342,11 +591,14 @@ function calculateQuantities() {
     quantities.masonry =
         getNumber("masonryQuantity");
 
+
     quantities.plaster =
         getNumber("plasterQuantity");
 
+
     quantities.flooring =
         getNumber("flooringQuantity");
+
 
     quantities.painting =
         getNumber("paintingQuantity");
@@ -364,13 +616,15 @@ function calculateQuantities() {
     document.getElementById(
         "totalRcc"
     ).textContent =
-        totalRcc.toFixed(2) + " m³";
+        totalRcc.toFixed(2) +
+        " m³";
 
 
     document.getElementById(
         "steelResult"
     ).textContent =
-        quantities.steel.toFixed(2) + " MT";
+        quantities.steel.toFixed(2) +
+        " MT";
 
 
     localStorage.setItem(
@@ -389,9 +643,10 @@ function calculateQuantities() {
 }
 
 
-/* ---------------------------------------------------------
+
+/* =========================================================
    LOAD QUANTITIES
-   --------------------------------------------------------- */
+========================================================= */
 
 function loadQuantities() {
 
@@ -400,45 +655,78 @@ function loadQuantities() {
             "constructionQuantities"
         );
 
-    if (!saved) {
-        return;
+
+    if (saved) {
+
+        try {
+
+            quantities =
+                JSON.parse(saved);
+
+        } catch (error) {
+
+            console.error(
+                "Unable to load quantities:",
+                error
+            );
+
+        }
+
     }
 
-    quantities = JSON.parse(saved);
+
+    const fields = {
+
+        foundationRcc:
+            quantities.foundationRcc,
+
+        columnRcc:
+            quantities.columnRcc,
+
+        beamRcc:
+            quantities.beamRcc,
+
+        slabRcc:
+            quantities.slabRcc,
+
+        shearWallRcc:
+            quantities.shearWallRcc,
+
+        staircaseRcc:
+            quantities.staircaseRcc,
+
+        steelQuantity:
+            quantities.steel,
+
+        masonryQuantity:
+            quantities.masonry,
+
+        plasterQuantity:
+            quantities.plaster,
+
+        flooringQuantity:
+            quantities.flooring,
+
+        paintingQuantity:
+            quantities.painting
+
+    };
 
 
-    document.getElementById("foundationRcc").value =
-        quantities.foundationRcc;
+    Object.keys(fields).forEach(id => {
 
-    document.getElementById("columnRcc").value =
-        quantities.columnRcc;
+        const element =
+            document.getElementById(id);
 
-    document.getElementById("beamRcc").value =
-        quantities.beamRcc;
 
-    document.getElementById("slabRcc").value =
-        quantities.slabRcc;
+        if (element) {
 
-    document.getElementById("shearWallRcc").value =
-        quantities.shearWallRcc;
+            element.value =
+                fields[id] || 0;
 
-    document.getElementById("staircaseRcc").value =
-        quantities.staircaseRcc;
+        }
 
-    document.getElementById("steelQuantity").value =
-        quantities.steel;
-
-    document.getElementById("masonryQuantity").value =
-        quantities.masonry;
-
-    document.getElementById("plasterQuantity").value =
-        quantities.plaster;
-
-    document.getElementById("flooringQuantity").value =
-        quantities.flooring;
-
-    document.getElementById("paintingQuantity").value =
-        quantities.painting;
+    });
 
 
     updateQuantityDisplay();
@@ -446,9 +734,10 @@ function loadQuantities() {
 }
 
 
-/* ---------------------------------------------------------
+
+/* =========================================================
    QUANTITY DISPLAY
-   --------------------------------------------------------- */
+========================================================= */
 
 function updateQuantityDisplay() {
 
@@ -464,52 +753,65 @@ function updateQuantityDisplay() {
     document.getElementById(
         "totalRcc"
     ).textContent =
-        totalRcc.toFixed(2) + " m³";
+        totalRcc.toFixed(2) +
+        " m³";
 
 
     document.getElementById(
         "steelResult"
     ).textContent =
-        quantities.steel.toFixed(2) + " MT";
+        quantities.steel.toFixed(2) +
+        " MT";
 
 }
 
 
-/* ---------------------------------------------------------
-   LOAD RATES
-   --------------------------------------------------------- */
+
+/* =========================================================
+   LOAD RATES FROM FORM
+========================================================= */
 
 function loadRatesFromForm() {
 
     rates.rcc =
         getNumber("rccRate");
 
+
     rates.steel =
         getNumber("steelRate");
+
 
     rates.masonry =
         getNumber("masonryRate");
 
+
     rates.plaster =
         getNumber("plasterRate");
+
 
     rates.flooring =
         getNumber("flooringRate");
 
+
     rates.painting =
         getNumber("paintingRate");
+
 
     rates.labour =
         getNumber("labourCost");
 
+
     rates.mep =
         getNumber("mepCost");
+
 
     rates.equipment =
         getNumber("equipmentCost");
 
+
     rates.overhead =
         getNumber("overheadCost");
+
 
     rates.contingency =
         getNumber("contingencyCost");
@@ -523,9 +825,10 @@ function loadRatesFromForm() {
 }
 
 
-/* ---------------------------------------------------------
+
+/* =========================================================
    LOAD RATES
-   --------------------------------------------------------- */
+========================================================= */
 
 function loadRates() {
 
@@ -534,50 +837,773 @@ function loadRates() {
             "constructionRates"
         );
 
+
     if (saved) {
-        rates = JSON.parse(saved);
+
+        try {
+
+            rates =
+                JSON.parse(saved);
+
+        } catch (error) {
+
+            console.error(
+                "Unable to load rates:",
+                error
+            );
+
+        }
+
     }
 
 
-    document.getElementById("rccRate").value =
-        rates.rcc;
+    const fields = {
 
-    document.getElementById("steelRate").value =
-        rates.steel;
+        rccRate: rates.rcc,
 
-    document.getElementById("masonryRate").value =
-        rates.masonry;
+        steelRate: rates.steel,
 
-    document.getElementById("plasterRate").value =
-        rates.plaster;
+        masonryRate: rates.masonry,
 
-    document.getElementById("flooringRate").value =
-        rates.flooring;
+        plasterRate: rates.plaster,
 
-    document.getElementById("paintingRate").value =
-        rates.painting;
+        flooringRate: rates.flooring,
 
-    document.getElementById("labourCost").value =
-        rates.labour;
+        paintingRate: rates.painting,
 
-    document.getElementById("mepCost").value =
-        rates.mep;
+        labourCost: rates.labour,
 
-    document.getElementById("equipmentCost").value =
-        rates.equipment;
+        mepCost: rates.mep,
 
-    document.getElementById("overheadCost").value =
-        rates.overhead;
+        equipmentCost: rates.equipment,
 
-    document.getElementById("contingencyCost").value =
-        rates.contingency;
+        overheadCost: rates.overhead,
+
+        contingencyCost:
+            rates.contingency
+
+    };
+
+
+    Object.keys(fields).forEach(id => {
+
+        const element =
+            document.getElementById(id);
+
+
+        if (element) {
+
+            element.value =
+                fields[id];
+
+        }
+
+    });
 
 }
 
 
-/* ---------------------------------------------------------
-   COST CALCULATION
-   --------------------------------------------------------- */
+
+/* =========================================================
+   BOQ ROW NUMBER
+========================================================= */
+
+function getChildSerial(parentSno, index) {
+
+    if (index === 0) {
+
+        return parentSno;
+
+    }
+
+
+    return parentSno +
+        String.fromCharCode(
+            64 + index
+        );
+
+}
+
+
+
+/* =========================================================
+   ADD BOQ ROW
+========================================================= */
+
+function addBoqRow(parentId) {
+
+    const parent =
+        boqRows.find(
+            row => row.id === parentId
+        );
+
+
+    if (!parent) {
+
+        return;
+
+    }
+
+
+    const parentSno =
+        parent.sno;
+
+
+    const sameGroup =
+        boqRows.filter(row => {
+
+            if (row.id === parentId) {
+
+                return true;
+
+            }
+
+
+            return row.sno
+                .toString()
+                .startsWith(
+                    parentSno
+                );
+
+        });
+
+
+    const childCount =
+        sameGroup.length;
+
+
+    const newSno =
+        getChildSerial(
+            parentSno,
+            childCount
+        );
+
+
+    let description =
+        parent.description;
+
+
+    /*
+       Special requirement:
+
+       Painting 1st Coat
+       + row => Painting 2nd Coat
+       + row => Painting 3rd Coat
+    */
+
+    if (
+        parent.description
+            .startsWith("Painting")
+    ) {
+
+        description =
+            "Painting " +
+            getOrdinal(childCount + 1) +
+            " Coat";
+
+    }
+
+
+    const newRow = {
+
+        id: nextBoqId++,
+
+        sno: newSno,
+
+        description: description,
+
+        l: 0,
+
+        b: 0,
+
+        dt: 0,
+
+        quantity: 0,
+
+        unit: parent.unit,
+
+        rate: parent.rate
+
+    };
+
+
+    const parentIndex =
+        boqRows.findIndex(
+            row => row.id === parentId
+        );
+
+
+    boqRows.splice(
+        parentIndex + 1,
+        0,
+        newRow
+    );
+
+
+    renumberBoqRows();
+
+
+    renderBoq();
+
+}
+
+
+
+/* =========================================================
+   ORDINAL
+========================================================= */
+
+function getOrdinal(number) {
+
+    const suffix =
+        ["th", "st", "nd", "rd"][
+            number % 100 >= 11 &&
+            number % 100 <= 13
+                ? 0
+                : number % 10 < 4
+                    ? number % 10
+                    : 0
+        ];
+
+
+    return number + suffix;
+
+}
+
+
+
+/* =========================================================
+   RENUMBER BOQ
+========================================================= */
+
+function renumberBoqRows() {
+
+    const counters = {};
+
+
+    boqRows.forEach(row => {
+
+        const base =
+            parseInt(
+                row.sno
+            );
+
+
+        if (
+            !Number.isFinite(base)
+        ) {
+
+            return;
+
+        }
+
+
+        if (
+            !counters[base]
+        ) {
+
+            counters[base] = 0;
+
+        }
+
+
+        counters[base]++;
+
+
+        if (
+            counters[base] === 1
+        ) {
+
+            row.sno =
+                String(base);
+
+        } else {
+
+            row.sno =
+                String(base) +
+                String.fromCharCode(
+                    64 + counters[base] - 1
+                );
+
+        }
+
+    });
+
+}
+
+
+
+/* =========================================================
+   REMOVE BOQ ROW
+========================================================= */
+
+function removeBoqRow(id) {
+
+    const index =
+        boqRows.findIndex(
+            row => row.id === id
+        );
+
+
+    if (index === -1) {
+
+        return;
+
+    }
+
+
+    if (boqRows.length <= 1) {
+
+        return;
+
+    }
+
+
+    boqRows.splice(
+        index,
+        1
+    );
+
+
+    renderBoq();
+
+}
+
+
+
+/* =========================================================
+   UPDATE BOQ FIELD
+========================================================= */
+
+function updateBoqField(
+    id,
+    field,
+    value
+) {
+
+    const row =
+        boqRows.find(
+            item => item.id === id
+        );
+
+
+    if (!row) {
+
+        return;
+
+    }
+
+
+    if (
+        field === "description"
+    ) {
+
+        row[field] =
+            value;
+
+    } else if (
+        field === "unit"
+    ) {
+
+        row[field] =
+            value;
+
+    } else {
+
+        row[field] =
+            parseFloat(value) || 0;
+
+    }
+
+
+    calculateRowQuantity(row);
+
+
+    renderBoq();
+
+}
+
+
+
+/* =========================================================
+   CALCULATE ROW QUANTITY
+========================================================= */
+
+function calculateRowQuantity(row) {
+
+    const l =
+        Number(row.l) || 0;
+
+
+    const b =
+        Number(row.b) || 0;
+
+
+    const dt =
+        Number(row.dt) || 0;
+
+
+    /*
+       m³:
+       L × B × D/T
+
+       m²:
+       L × B
+    */
+
+    if (row.unit === "m³") {
+
+        row.quantity =
+            l * b * dt;
+
+    } else {
+
+        row.quantity =
+            l * b;
+
+    }
+
+}
+
+
+
+/* =========================================================
+   RENDER BOQ
+========================================================= */
+
+function renderBoq() {
+
+    const table =
+        document.getElementById(
+            "boqTable"
+        );
+
+
+    if (!table) {
+
+        return;
+
+    }
+
+
+    table.innerHTML = "";
+
+
+    let total = 0;
+
+
+    boqRows.forEach(row => {
+
+        calculateRowQuantity(row);
+
+
+        const amount =
+            row.quantity *
+            (Number(row.rate) || 0);
+
+
+        total += amount;
+
+
+        const tr =
+            document.createElement("tr");
+
+
+        tr.innerHTML = `
+
+            <td>
+                <strong>
+                    ${escapeHtml(row.sno)}
+                </strong>
+            </td>
+
+
+            <td>
+
+                <input
+                    class="boq-input description-input"
+                    type="text"
+                    value="${escapeHtml(row.description)}"
+                    onchange="
+                        updateBoqField(
+                            ${row.id},
+                            'description',
+                            this.value
+                        )
+                    ">
+
+            </td>
+
+
+            <td>
+
+                <input
+                    class="boq-input"
+                    type="number"
+                    step="0.01"
+                    value="${row.l}"
+                    onchange="
+                        updateBoqField(
+                            ${row.id},
+                            'l',
+                            this.value
+                        )
+                    ">
+
+            </td>
+
+
+            <td>
+
+                <input
+                    class="boq-input"
+                    type="number"
+                    step="0.01"
+                    value="${row.b}"
+                    onchange="
+                        updateBoqField(
+                            ${row.id},
+                            'b',
+                            this.value
+                        )
+                    ">
+
+            </td>
+
+
+            <td>
+
+                <input
+                    class="boq-input"
+                    type="number"
+                    step="0.01"
+                    value="${row.dt}"
+                    onchange="
+                        updateBoqField(
+                            ${row.id},
+                            'dt',
+                            this.value
+                        )
+                    ">
+
+            </td>
+
+
+            <td>
+                ${row.quantity.toFixed(2)}
+            </td>
+
+
+            <td>
+
+                <select
+                    class="unit-select"
+                    onchange="
+                        updateBoqField(
+                            ${row.id},
+                            'unit',
+                            this.value
+                        )
+                    ">
+
+                    <option
+                        value="m³"
+                        ${row.unit === "m³"
+                            ? "selected"
+                            : ""}>
+                        m³
+                    </option>
+
+                    <option
+                        value="m²"
+                        ${row.unit === "m²"
+                            ? "selected"
+                            : ""}>
+                        m²
+                    </option>
+
+                </select>
+
+            </td>
+
+
+            <td>
+
+                <input
+                    class="boq-input"
+                    type="number"
+                    step="0.01"
+                    value="${row.rate}"
+                    onchange="
+                        updateBoqField(
+                            ${row.id},
+                            'rate',
+                            this.value
+                        )
+                    ">
+
+            </td>
+
+
+            <td class="amount-cell">
+
+                ${formatCurrency(amount)}
+
+            </td>
+
+
+            <td>
+
+                <button
+                    class="add-row-btn"
+                    title="Add row"
+                    onclick="
+                        addBoqRow(${row.id})
+                    ">
+
+                    +
+
+                </button>
+
+                <button
+                    class="remove-row-btn"
+                    title="Remove row"
+                    onclick="
+                        removeBoqRow(${row.id})
+                    ">
+
+                    ×
+
+                </button>
+
+            </td>
+
+        `;
+
+
+        table.appendChild(tr);
+
+    });
+
+
+    document.getElementById(
+        "boqTotal"
+    ).textContent =
+        formatCurrency(total);
+
+
+    updateSummaryFromBoq(total);
+
+}
+
+
+
+/* =========================================================
+   BOQ TOTAL
+========================================================= */
+
+function getBoqTotal() {
+
+    return boqRows.reduce(
+        (total, row) => {
+
+            calculateRowQuantity(row);
+
+
+            return total +
+                (
+                    row.quantity *
+                    (Number(row.rate) || 0)
+                );
+
+        },
+        0
+    );
+
+}
+
+
+
+/* =========================================================
+   SUMMARY
+========================================================= */
+
+function updateSummaryFromBoq(
+    boqTotal
+) {
+
+    const summary =
+        document.getElementById(
+            "summaryBreakdown"
+        );
+
+
+    if (!summary) {
+
+        return;
+
+    }
+
+
+    summary.innerHTML = "";
+
+
+    boqRows.forEach(row => {
+
+        const amount =
+            row.quantity *
+            (Number(row.rate) || 0);
+
+
+        const p =
+            document.createElement("p");
+
+
+        p.innerHTML = `
+
+            <strong>
+                ${escapeHtml(row.sno)}
+                -
+                ${escapeHtml(row.description)}
+            </strong>
+
+            :
+
+            ${formatCurrency(amount)}
+
+        `;
+
+
+        summary.appendChild(p);
+
+    });
+
+
+    summary.innerHTML += `
+
+        <p class="summary-total">
+
+            <strong>
+                TOTAL
+            </strong>
+
+            :
+
+            <strong>
+                ${formatCurrency(boqTotal)}
+            </strong>
+
+        </p>
+
+    `;
+
+}
+
+
+
+/* =========================================================
+   TOTAL PROJECT COST
+========================================================= */
 
 function calculateTotalCost() {
 
@@ -594,27 +1620,33 @@ function calculateTotalCost() {
 
 
     const rccCost =
-        totalRcc * rates.rcc;
+        totalRcc *
+        rates.rcc;
 
 
     const steelCost =
-        quantities.steel * rates.steel;
+        quantities.steel *
+        rates.steel;
 
 
     const masonryCost =
-        quantities.masonry * rates.masonry;
+        quantities.masonry *
+        rates.masonry;
 
 
     const plasterCost =
-        quantities.plaster * rates.plaster;
+        quantities.plaster *
+        rates.plaster;
 
 
     const flooringCost =
-        quantities.flooring * rates.flooring;
+        quantities.flooring *
+        rates.flooring;
 
 
     const paintingCost =
-        quantities.painting * rates.painting;
+        quantities.painting *
+        rates.painting;
 
 
     const civilCost =
@@ -626,429 +1658,929 @@ function calculateTotalCost() {
         paintingCost;
 
 
-    const total =
+    return (
         civilCost +
         rates.labour +
         rates.mep +
         rates.equipment +
         rates.overhead +
-        rates.contingency;
-
-
-    return total;
+        rates.contingency
+    );
 
 }
 
 
-/* ---------------------------------------------------------
-   COST CALCULATION + BOQ
-   --------------------------------------------------------- */
+
+/* =========================================================
+   COST CALCULATION
+========================================================= */
 
 function calculateCost() {
 
     loadRatesFromForm();
 
 
-    const totalRcc =
-        quantities.foundationRcc +
-        quantities.columnRcc +
-        quantities.beamRcc +
-        quantities.slabRcc +
-        quantities.shearWallRcc +
-        quantities.staircaseRcc;
+    renderBoq();
 
 
-    const items = [
+    const total =
+        calculateTotalCost();
+
+
+    const boqTotal =
+        getBoqTotal();
+
+
+    /*
+       Use BOQ total if rows contain data.
+       Otherwise use existing project cost calculation.
+    */
+
+    const finalTotal =
+        boqTotal > 0
+            ? boqTotal
+            : total;
+
+
+    const totalProjectCost =
+        document.getElementById(
+            "totalProjectCost"
+        );
+
+
+    if (totalProjectCost) {
+
+        totalProjectCost.textContent =
+            formatCurrency(finalTotal);
+
+    }
+
+
+    const costPerSqft =
+        project.builtUpArea > 0
+            ? finalTotal /
+              project.builtUpArea
+            : 0;
+
+
+    const costPerSqftElement =
+        document.getElementById(
+            "costPerSqft"
+        );
+
+
+    if (costPerSqftElement) {
+
+        costPerSqftElement.textContent =
+            formatCurrency(
+                costPerSqft
+            );
+
+    }
+
+
+    const dashboardCost =
+        document.getElementById(
+            "dashboardCost"
+        );
+
+
+    if (dashboardCost) {
+
+        dashboardCost.textContent =
+            formatCurrency(
+                finalTotal
+            );
+
+    }
+
+
+    return finalTotal;
+
+}
+
+
+
+/* =========================================================
+   CREATE EXCEL DATA
+========================================================= */
+
+function createExcelData() {
+
+    const rows = [];
+
+
+    /*
+       Project information
+    */
+
+    rows.push([
+        "Construction Cost Estimator"
+    ]);
+
+
+    rows.push([
+        "Project",
+        project.name || ""
+    ]);
+
+
+    rows.push([
+        "Location",
+        project.location || ""
+    ]);
+
+
+    rows.push([
+        "Client",
+        project.client || ""
+    ]);
+
+
+    rows.push([
+        "Building Type",
+        project.buildingType || ""
+    ]);
+
+
+    rows.push([
+        "Built-up Area",
+        project.builtUpArea || 0,
+        "sq.ft"
+    ]);
+
+
+    rows.push([]);
+
+
+    /*
+       BOQ header
+    */
+
+    rows.push([
+
+        "S.No",
+
+        "Description",
+
+        "L",
+
+        "B",
+
+        "D/T",
+
+        "Quantity",
+
+        "Unit",
+
+        "Rate",
+
+        "Amount"
+
+    ]);
+
+
+    /*
+       BOQ rows
+    */
+
+    boqRows.forEach(row => {
+
+        calculateRowQuantity(row);
+
+
+        const amount =
+            row.quantity *
+            (Number(row.rate) || 0);
+
+
+        rows.push([
+
+            row.sno,
+
+            row.description,
+
+            Number(row.l) || 0,
+
+            Number(row.b) || 0,
+
+            Number(row.dt) || 0,
+
+            Number(
+                row.quantity.toFixed(2)
+            ),
+
+            row.unit,
+
+            Number(row.rate) || 0,
+
+            Number(
+                amount.toFixed(2)
+            )
+
+        ]);
+
+    });
+
+
+    /*
+       TOTAL ROW
+
+       Amount is numeric so Excel
+       recognizes it correctly.
+    */
+
+    const total =
+        getBoqTotal();
+
+
+    rows.push([
+
+        "",
+
+        "",
+
+        "",
+
+        "",
+
+        "",
+
+        "",
+
+        "",
+
+        "TOTAL",
+
+        Number(
+            total.toFixed(2)
+        )
+
+    ]);
+
+
+    return rows;
+
+}
+
+
+
+/* =========================================================
+   EXPORT REAL XLSX EXCEL FILE
+========================================================= */
+
+function exportExcel() {
+
+    /*
+       Make sure latest form values
+       are loaded before exporting.
+    */
+
+    calculateQuantitiesSilently();
+
+    loadRatesFromForm();
+
+
+    /*
+       Check SheetJS
+    */
+
+    if (
+        typeof XLSX ===
+        "undefined"
+    ) {
+
+        alert(
+            "Excel library could not be loaded. Please check your internet connection and reload the page."
+        );
+
+        return;
+
+    }
+
+
+    const data =
+        createExcelData();
+
+
+    /*
+       Create worksheet
+    */
+
+    const worksheet =
+        XLSX.utils.aoa_to_sheet(
+            data
+        );
+
+
+    /*
+       Merge title
+    */
+
+    worksheet["!merges"] = [
 
         {
-            name: "RCC",
-            quantity: totalRcc,
-            unit: "m³",
-            rate: rates.rcc
-        },
+            s: {
+                r: 0,
+                c: 0
+            },
 
-        {
-            name: "Reinforcement Steel",
-            quantity: quantities.steel,
-            unit: "MT",
-            rate: rates.steel
-        },
-
-        {
-            name: "Masonry",
-            quantity: quantities.masonry,
-            unit: "m²",
-            rate: rates.masonry
-        },
-
-        {
-            name: "Plaster",
-            quantity: quantities.plaster,
-            unit: "m²",
-            rate: rates.plaster
-        },
-
-        {
-            name: "Flooring",
-            quantity: quantities.flooring,
-            unit: "m²",
-            rate: rates.flooring
-        },
-
-        {
-            name: "Painting",
-            quantity: quantities.painting,
-            unit: "m²",
-            rate: rates.painting
-        },
-
-        {
-            name: "Labour",
-            quantity: 1,
-            unit: "LS",
-            rate: rates.labour
-        },
-
-        {
-            name: "MEP",
-            quantity: 1,
-            unit: "LS",
-            rate: rates.mep
-        },
-
-        {
-            name: "Equipment",
-            quantity: 1,
-            unit: "LS",
-            rate: rates.equipment
-        },
-
-        {
-            name: "Overheads",
-            quantity: 1,
-            unit: "LS",
-            rate: rates.overhead
-        },
-
-        {
-            name: "Contingency",
-            quantity: 1,
-            unit: "LS",
-            rate: rates.contingency
+            e: {
+                r: 0,
+                c: 8
+            }
         }
 
     ];
 
 
-    let total = 0;
+    /*
+       Column widths
+    */
+
+    worksheet["!cols"] = [
+
+        {
+            wch: 9
+        },
+
+        {
+            wch: 28
+        },
+
+        {
+            wch: 12
+        },
+
+        {
+            wch: 12
+        },
+
+        {
+            wch: 12
+        },
+
+        {
+            wch: 14
+        },
+
+        {
+            wch: 12
+        },
+
+        {
+            wch: 16
+        },
+
+        {
+            wch: 18
+        }
+
+    ];
 
 
-    const table =
-        document.getElementById(
-            "boqTable"
-        );
+    /*
+       Header row number
+
+       Row 0 = title
+       Row 1 = project
+       Row 2 = location
+       Row 3 = client
+       Row 4 = building
+       Row 5 = area
+       Row 6 = blank
+       Row 7 = BOQ header
+    */
+
+    const headerRow = 7;
 
 
-    table.innerHTML = "";
+    /*
+       Style title
+    */
 
+    if (worksheet["A1"]) {
 
-    items.forEach(item => {
+        worksheet["A1"].s = {
 
-        const amount =
-            item.quantity * item.rate;
+            font: {
+                bold: true,
+                sz: 16
+            },
 
+            alignment: {
+                horizontal: "center",
+                vertical: "center"
+            }
 
-        total += amount;
-
-
-        const row =
-            document.createElement("tr");
-
-
-        row.innerHTML = `
-
-            <td>${item.name}</td>
-
-            <td>
-                ${item.quantity.toFixed(2)}
-            </td>
-
-            <td>${item.unit}</td>
-
-            <td>
-                ${formatCurrency(item.rate)}
-            </td>
-
-            <td>
-                ${formatCurrency(amount)}
-            </td>
-
-        `;
-
-
-        table.appendChild(row);
-
-    });
-
-
-    document.getElementById(
-        "boqTotal"
-    ).textContent =
-        formatCurrency(total);
-
-
-    document.getElementById(
-        "totalProjectCost"
-    ).textContent =
-        formatCurrency(total);
-
-
-    let costPerSqft = 0;
-
-
-    if (project.builtUpArea > 0) {
-
-        costPerSqft =
-            total / project.builtUpArea;
+        };
 
     }
 
 
-    document.getElementById(
-        "costPerSqft"
-    ).textContent =
-        formatCurrency(costPerSqft);
+    /*
+       Style BOQ header
+    */
+
+    for (
+        let col = 0;
+        col < 9;
+        col++
+    ) {
+
+        const cell =
+            XLSX.utils.encode_cell({
+
+                r: headerRow,
+
+                c: col
+
+            });
 
 
-    document.getElementById(
-        "dashboardCost"
-    ).textContent =
-        formatCurrency(total);
+        if (worksheet[cell]) {
+
+            worksheet[cell].s = {
+
+                font: {
+                    bold: true
+                },
+
+                alignment: {
+
+                    horizontal:
+                        "center",
+
+                    vertical:
+                        "center",
+
+                    wrapText:
+                        true
+
+                },
+
+                border: {
+
+                    top: {
+                        style: "thin"
+                    },
+
+                    bottom: {
+                        style: "thin"
+                    },
+
+                    left: {
+                        style: "thin"
+                    },
+
+                    right: {
+                        style: "thin"
+                    }
+
+                }
+
+            };
+
+        }
+
+    }
 
 
-    updateSummary(items);
+    /*
+       Style BOQ data rows
+    */
+
+    const totalRows =
+        data.length;
 
 
-    return total;
+    for (
+        let r = headerRow + 1;
+        r < totalRows;
+        r++
+    ) {
 
-}
+        for (
+            let c = 0;
+            c < 9;
+            c++
+        ) {
 
+            const cell =
+                XLSX.utils.encode_cell({
 
-/* ---------------------------------------------------------
-   SUMMARY
-   --------------------------------------------------------- */
+                    r: r,
 
-function updateSummary(items) {
+                    c: c
 
-    const container =
-        document.getElementById(
-            "summaryBreakdown"
-        );
-
-
-    container.innerHTML = "";
-
-
-    items.forEach(item => {
-
-        const amount =
-            item.quantity * item.rate;
+                });
 
 
-        const row =
-            document.createElement("p");
+            if (!worksheet[cell]) {
+
+                continue;
+
+            }
 
 
-        row.innerHTML = `
+            worksheet[cell].s = {
 
-            <strong>
-                ${item.name}
-            </strong>
+                alignment: {
 
-            :
-            ${formatCurrency(amount)}
+                    horizontal:
+                        c === 1
+                            ? "left"
+                            : "center",
 
-        `;
+                    vertical:
+                        "center"
+
+                },
+
+                border: {
+
+                    top: {
+                        style: "thin"
+                    },
+
+                    bottom: {
+                        style: "thin"
+                    },
+
+                    left: {
+                        style: "thin"
+                    },
+
+                    right: {
+                        style: "thin"
+                    }
+
+                }
+
+            };
 
 
-        container.appendChild(row);
+            /*
+               Rate and Amount
+               should be numeric/currency.
+            */
 
-    });
+            if (
+                c === 7 ||
+                c === 8
+            ) {
 
-}
+                worksheet[cell].z =
+                    '₹#,##0.00';
 
+                worksheet[cell].s.alignment
+                    .horizontal =
+                    "right";
 
-/* ---------------------------------------------------------
-   EXPORT CSV
-   --------------------------------------------------------- */
+            }
 
-function exportCSV() {
+        }
 
-    loadRatesFromForm();
-
-
-    const totalRcc =
-        quantities.foundationRcc +
-        quantities.columnRcc +
-        quantities.beamRcc +
-        quantities.slabRcc +
-        quantities.shearWallRcc +
-        quantities.staircaseRcc;
+    }
 
 
-    const rows = [
+    /*
+       Total row
 
-        ["Construction Cost Estimator"],
+       Last row in the worksheet
+    */
 
-        ["Project", project.name],
+    const totalRow =
+        data.length - 1;
 
-        ["Location", project.location],
 
-        ["Built-up Area", project.builtUpArea],
+    for (
+        let c = 0;
+        c < 9;
+        c++
+    ) {
+
+        const cell =
+            XLSX.utils.encode_cell({
+
+                r: totalRow,
+
+                c: c
+
+            });
+
+
+        if (!worksheet[cell]) {
+
+            continue;
+
+        }
+
+
+        worksheet[cell].s = {
+
+            font: {
+                bold: true
+            },
+
+            alignment: {
+
+                horizontal:
+                    c === 7 ||
+                    c === 8
+                        ? "right"
+                        : "center",
+
+                vertical:
+                    "center"
+
+            },
+
+            border: {
+
+                top: {
+                    style: "thin"
+                },
+
+                bottom: {
+                    style: "double"
+                },
+
+                left: {
+                    style: "thin"
+                },
+
+                right: {
+                    style: "thin"
+                }
+
+            }
+
+        };
+
+
+        if (c === 8) {
+
+            worksheet[cell].z =
+                '₹#,##0.00';
+
+        }
+
+    }
+
+
+    /*
+       Freeze BOQ header
+    */
+
+    worksheet["!freeze"] = {
+        xSplit: 0,
+        ySplit: 8
+    };
+
+
+    /*
+       Create workbook
+    */
+
+    const workbook =
+        XLSX.utils.book_new();
+
+
+    XLSX.utils.book_append_sheet(
+
+        workbook,
+
+        worksheet,
+
+        "BOQ"
+
+    );
+
+
+    /*
+       Create second summary sheet
+    */
+
+    const summaryData = [
+
+        [
+            "Construction Cost Summary"
+        ],
 
         [],
 
         [
-            "Item",
-            "Quantity",
-            "Unit",
-            "Rate",
-            "Amount"
+            "Project",
+            project.name || ""
         ],
 
         [
-            "RCC",
-            totalRcc,
-            "m3",
-            rates.rcc,
-            totalRcc * rates.rcc
+            "Location",
+            project.location || ""
         ],
 
         [
-            "Steel",
-            quantities.steel,
-            "MT",
-            rates.steel,
-            quantities.steel * rates.steel
+            "Client",
+            project.client || ""
         ],
 
         [
-            "Masonry",
-            quantities.masonry,
-            "m2",
-            rates.masonry,
-            quantities.masonry * rates.masonry
+            "Built-up Area",
+            project.builtUpArea || 0,
+            "sq.ft"
         ],
 
-        [
-            "Plaster",
-            quantities.plaster,
-            "m2",
-            rates.plaster,
-            quantities.plaster * rates.plaster
-        ],
+        [],
 
         [
-            "Flooring",
-            quantities.flooring,
-            "m2",
-            rates.flooring,
-            quantities.flooring * rates.flooring
-        ],
-
-        [
-            "Painting",
-            quantities.painting,
-            "m2",
-            rates.painting,
-            quantities.painting * rates.painting
-        ],
-
-        [
-            "Labour",
-            1,
-            "LS",
-            rates.labour,
-            rates.labour
-        ],
-
-        [
-            "MEP",
-            1,
-            "LS",
-            rates.mep,
-            rates.mep
-        ],
-
-        [
-            "Equipment",
-            1,
-            "LS",
-            rates.equipment,
-            rates.equipment
-        ],
-
-        [
-            "Overheads",
-            1,
-            "LS",
-            rates.overhead,
-            rates.overhead
-        ],
-
-        [
-            "Contingency",
-            1,
-            "LS",
-            rates.contingency,
-            rates.contingency
+            "Total BOQ Amount",
+            Number(
+                getBoqTotal().toFixed(2)
+            )
         ]
 
     ];
 
 
-    const csv =
-        rows
-            .map(row =>
-                row.join(",")
-            )
-            .join("\n");
-
-
-    const blob =
-        new Blob(
-            [csv],
-            {
-                type: "text/csv"
-            }
+    const summarySheet =
+        XLSX.utils.aoa_to_sheet(
+            summaryData
         );
 
 
-    const url =
-        URL.createObjectURL(blob);
+    summarySheet["!cols"] = [
+
+        {
+            wch: 25
+        },
+
+        {
+            wch: 30
+        },
+
+        {
+            wch: 15
+        }
+
+    ];
 
 
-    const link =
-        document.createElement("a");
+    if (
+        summarySheet["A1"]
+    ) {
+
+        summarySheet["A1"].s = {
+
+            font: {
+                bold: true,
+                sz: 16
+            },
+
+            alignment: {
+                horizontal: "center"
+            }
+
+        };
+
+    }
 
 
-    link.href = url;
+    if (
+        summarySheet["B8"]
+    ) {
 
-    link.download =
-        "construction_boq.csv";
+        summarySheet["B8"].z =
+            '₹#,##0.00';
 
 
-    link.click();
+        summarySheet["B8"].s = {
+
+            font: {
+                bold: true
+            },
+
+            alignment: {
+                horizontal: "right"
+            }
+
+        };
+
+    }
 
 
-    URL.revokeObjectURL(url);
+    XLSX.utils.book_append_sheet(
+
+        workbook,
+
+        summarySheet,
+
+        "Summary"
+
+    );
+
+
+    /*
+       File name
+    */
+
+    let fileName =
+        project.name
+            ? project.name
+                .replace(
+                    /[^a-z0-9]/gi,
+                    "_"
+                )
+            : "construction";
+
+
+    fileName +=
+        "_BOQ.xlsx";
+
+
+    /*
+       Download actual XLSX
+    */
+
+    XLSX.writeFile(
+
+        workbook,
+
+        fileName
+
+    );
 
 }
 
 
-/* ---------------------------------------------------------
+
+/* =========================================================
+   SILENT QUANTITY CALCULATION
+========================================================= */
+
+function calculateQuantitiesSilently() {
+
+    quantities.foundationRcc =
+        getNumber("foundationRcc");
+
+
+    quantities.columnRcc =
+        getNumber("columnRcc");
+
+
+    quantities.beamRcc =
+        getNumber("beamRcc");
+
+
+    quantities.slabRcc =
+        getNumber("slabRcc");
+
+
+    quantities.shearWallRcc =
+        getNumber("shearWallRcc");
+
+
+    quantities.staircaseRcc =
+        getNumber("staircaseRcc");
+
+
+    quantities.steel =
+        getNumber("steelQuantity");
+
+
+    quantities.masonry =
+        getNumber("masonryQuantity");
+
+
+    quantities.plaster =
+        getNumber("plasterQuantity");
+
+
+    quantities.flooring =
+        getNumber("flooringQuantity");
+
+
+    quantities.painting =
+        getNumber("paintingQuantity");
+
+
+    localStorage.setItem(
+
+        "constructionQuantities",
+
+        JSON.stringify(
+            quantities
+        )
+
+    );
+
+}
+
+
+
+/* =========================================================
    INITIALIZATION
-   --------------------------------------------------------- */
+========================================================= */
 
 window.addEventListener(
     "DOMContentLoaded",
@@ -1059,6 +2591,8 @@ window.addEventListener(
         loadQuantities();
 
         loadRates();
+
+        renderBoq();
 
         calculateCost();
 
